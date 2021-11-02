@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        function register() {
+            let fullName = $('#fullName').val();
+            let username = $('#username').val();
+            let password = $('#password').val();
+            let user = {
+                fullName: fullName,
+                username: username,
+                password: password
+            };
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "POST",
+                data: JSON.stringify(user),
+                url: "http://localhost:8080/register",
+                success: function () {
+                    location.href="login.html";
+                }
+            }).fail(function (){
+                alert("Sai Dau Do");
+            });
+        }
+    </script>
+</head>
+<body>
+<h3>Register Form</h3> <br>
+<form id="formLogin">
+    FullName:
+    <label for="fullName"></label><input id="fullName" type="text">
+    <br>
+    UserName:
+    <label for="username"></label><input id="username" type="text">
+    <br> <br>
+    Password:
+    <label for="password"></label><input id="password" type="password">
+    <br>
+    <input type="submit" value="login" onclick="register()">
+</form>
+</body>
+</html>

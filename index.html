@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Category</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>
+        let urlCategory = "http://localhost:8080/categories";
+        showList();
+
+        function getCategory(category) {
+            return `<tr>
+                        <td >${category.id}</td>
+                        <td >${category.name}</td>
+                        <td><button onclick="">Delete</button></td>
+                        <td><button onclick="showEdit(${category.id})">Update</button></td>
+                    </tr>`;
+        }
+
+        function showList() {
+            $.getJSON(urlCategory, function (data) {
+                let content = "";
+                for (let i = 0; i < data.length; i++) {
+                    content += getCategory(data[i]);
+                }
+                $("#showAll").html(content);
+            })
+        }
+
+        function showCreate() {
+            let myModal = new bootstrap.Modal(document.getElementById('modalCreate'));
+            myModal.show();
+        }
+
+        function showEdit(id) {
+            $.ajax({
+                type: "GET",
+                url: `http://localhost:8080/categories/${id}`,
+                success: function (data) {
+                    let myModal = new bootstrap.Modal(document.getElementById('modalCreate2'));
+                    $('#edit').val(data.id);
+                    $('#nameEdit').val(data.name);
+                    myModal.show();
+                }
+            });
+            event.preventDefault();
+        }
+
+        function edit(id) {
+            let name = $('#nameEdit').val();
+            let category = {
+                id: id,
+                name: name
+            }
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "PUT",
+                data: JSON.stringify(category),
+                url: `http://localhost:8080/categories/${id}`,
+                success: function () {
+                    showList();
+                    alert("Update Success")
+                }
+            });
+        }
+
+        function create() {
+            let name = $('#name').val();
+            let category = {
+                name: name
+            }
+            $.ajax({
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                type: "POST",
+                data: JSON.stringify(category),
+                url: "http://localhost:8080/categories",
+                success: function () {
+                    showList();
+                    alert("Create Success")
+                }
+            });
+        }
+
+    </script>
+</head>
+<body>
+<div class="controller">
+    <div class="card">
+        <div class="card-header">
+            <button class="btn btn-primary" onclick="showCreate()">Create</button>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                </tr>
+                </thead>
+                <tbody id="showAll">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--toast-->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Delete</strong>
+            <small>11 mins ago</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <p id="messageToast"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal create -->
+<div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" >
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="create()" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal edit -->
+<div class="modal fade" id="modalCreate2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" id="edit">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="nameEdit" >
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="edit($('#edit').val())" type="button" class="btn btn-primary" data-bs-dismiss="modal">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal info -->
+<div class="modal fade" id="modalInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Name: <span id="nameInfo"></span></p>
+                <p>Price: <span id="priceInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
